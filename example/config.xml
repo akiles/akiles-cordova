@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="app.akiles.cordovaexample" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>AkilesCordovaExample</name>
+    <description>Akiles SDK demo</description>
+    <author email="support@akiles.app" href="https://akiles.app">
+        Akiles Team
+    </author>
+
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+
+    <preference name="android-minSdkVersion" value="23" />
+    <preference name="AndroidEdgeToEdge" value="true" />
+    <preference name="AndroidWindowTranslucentStatus" value="true" />
+    <preference name="AndroidWindowTranslucentNavigation" value="true" />
+
+    <!-- uncomment for no live reload -->
+    <content src="index.html" />
+
+    <!-- uncomment for yes live reload -->
+    <!-- then run `npx browser-sync start -c bs-config.js` --> 
+    <!--
+    <allow-navigation href="http://*/*" />
+    <allow-navigation href="https://*/*" />
+    <content src="http://10.0.0.100:3000/" />
+    <access origin="*" />
+    <platform name="android">
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
+    </platform>
+    -->
+
+    <platform name="ios">
+      <preference name="deployment-target" value="13.0" />
+    </platform>
+      
+</widget>

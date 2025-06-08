@@ -1,0 +1,14 @@
+repositories {
+    // Release repo
+    maven {
+        url = uri("https://maven.akiles.app/release")
+    }
+    // Preview maven repo. Do not use for production!
+    maven {
+        url = uri("https://maven.akiles.app/preview")
+    }
+}
+
+dependencies {
+    implementation 'app.akiles:sdk:2.0.0-g56eddff'
+}

@@ -1,0 +1,35 @@
+{
+  "name": "akiles-cordova",
+  "version": "1.0.0",
+  "description": "Akiles Cordova Plugin",
+  "cordova": {
+    "id": "akiles-cordova",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "cordova",
+    "akiles",
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android"
+  ],
+  "types": "./types.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akiles/akiles-cordova.git"
+  },
+  "author": "Akiles <support@akiles.app> (https://akiles.app)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/akiles/akiles-cordova/issues"
+  },
+  "homepage": "https://github.com/akiles/akiles-cordova#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "typedocOptions": {
+    "entryPoints": ["types.d.ts"]
+  }
+}

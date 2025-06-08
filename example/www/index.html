@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="css/index.css">
+    <title>Akiles SDK Demo</title>
+    <script src="cordova.js"></script>
+    <script src="js/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h3>Sessions</h3>
+        <div class="input-row">
+            <input type="text" v-model="sessionToken" placeholder="Session token" />
+            <button @click="addSessionClicked" :disabled="!sessionToken">Add Session</button>
+        </div>
+        <div>{{ message }}</div>
+        <select v-model="selectedSession">
+            <option v-for="session in sessions" :key="session" :value="session">{{ session }}</option>
+        </select>
+        <div class="button-grid">
+            <button @click="refreshSessionClicked" :disabled="!selectedSession">Refresh Selected</button>
+            <button @click="deleteSessionClicked" :disabled="!selectedSession">Delete Selected</button>
+            <button @click="refreshAllSessionsClicked" :disabled="!sessions.length">Refresh All</button>
+            <button @click="deleteAllSessionsClicked" :disabled="!sessions.length">Delete All</button>
+        </div>
+
+        <h3>Gadgets</h3>
+        <div v-if="gadgets.length" class="picker-row">
+            <select v-model="selectedGadget">
+                <option v-for="gadget in gadgets" :key="gadget.id" :value="gadget.id">{{ gadget.name }}</option>
+            </select>
+            <select v-if="actions.length" v-model="selectedAction">
+                <option v-for="action in actions" :key="action.id" :value="action.id">{{ action.name }}</option>
+            </select>
+        </div>
+        <div class="input-row">
+            <button @click="doActionClicked" :disabled="cancelAction">Do Action</button>
+            <div v-if="cancelAction" class="spinner"></div>
+            <button v-if="cancelAction" @click="cancelActionClicked">Cancel</button>
+        </div>
+        <div>{{ internetStatus }}</div>
+        <div>{{ bluetoothStatus }}</div>
+
+        <h3>Scan</h3>
+        Bluetooth is <b>{{ bluetoothSupported ? 'Supported' : 'Not Supported' }}</b> on this device.
+        <div class="input-row">
+            <button @click="scanClicked" :disabled="cancelScan || cancelSync">Scan</button>
+            <div v-if="cancelScan" class="spinner"></div>
+            <button v-if="cancelScan" @click="cancelScanClicked">Cancel</button>
+        </div>
+        <select v-model="selectedHardware">
+            <option v-for="hw in discoveredHardwares" :key="hw.id" :value="hw.id">{{ hw.name }} ({{ hw.id }})
+            </option>
+        </select>
+        <div class="input-row">
+            <button @click="syncClicked" :disabled="!selectedSession || !selectedHardware || cancelScan || cancelSync">Sync</button>
+            <div v-if="cancelSync" class="spinner"></div>
+            <button v-if="cancelSync" @click="cancelSyncClicked">Cancel</button>
+        </div>
+        <div class="scan-status">{{ scanStatus }}</div>
+
+        <h3>Card</h3>
+        Card Emulation is <b>{{ cardEmulationSupported ? 'Supported' : 'Not Supported' }}</b> on this device.
+        <div class="input-row">
+            <button @click="scanCardClicked" :disabled="cancelScanCard">Scan Card</button>
+            <div v-if="cancelScanCard" class="spinner"></div>
+            <button v-if="cancelScanCard" @click="cancelScanCardClicked">Cancel</button>
+        </div>
+        <div v-if="cardScanned">
+            <div>UID: {{ cardUid }}</div>
+            <div>isAkilesCard: {{ cardIsAkilesCard ? 'Yes' : 'No' }}</div>
+            <div v-if="cardIsAkilesCard">Update status: {{ cardUpdateStatus }}</div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch } = Vue
+
+        function setup() {
+            const message = ref('Welcome to Akiles SDK Demo!')
+            const sessionToken = ref('')
+            const sessions = ref([])
+            const selectedSession = ref(undefined)
+            const gadgets = ref([])
+            const selectedGadget = ref(undefined)
+            const actions = ref([])
+            const selectedAction = ref(undefined)
+            const internetStatus = ref('')
+            const bluetoothStatus = ref('')
+            const discoveredHardwares = ref([])
+            const selectedHardware = ref(undefined)
+            const scanStatus = ref('')
+            const cardScanned = ref(false)
+            const cardUid = ref('')
+            const cardIsAkilesCard = ref(false)
+            const cardUpdateStatus = ref('')
+            const cancelScan = ref(null);
+            const cancelScanCard = ref(null);
+            const cancelSync = ref(null);
+            const cancelAction = ref(null);
+            const bluetoothSupported = ref(false);
+            const cardEmulationSupported = ref(false);
+
+            function handleError(e) {
+                console.error('Error:', e)
+                message.value = 'Error: ' + JSON.stringify(e)
+            }
+            const fetchSessions = async () => {
+                try {
+                    sessions.value = await akiles.getSessionIDs()
+                    if (sessions.value.length && !selectedSession.value) {
+                        selectedSession.value = sessions.value[0]
+                    } else if (!sessions.value.length) {
+                        selectedSession.value = undefined
+                    }
+                } catch (e) {
+                    handleError(e)
+                }
+            }
+            const addSessionClicked = async () => {
+                try {
+                    console.log('Adding session with token:', sessionToken.value)
+                    const id = await akiles.addSession(sessionToken.value)
+                    message.value = 'Session added: ' + id
+                    await fetchSessions()
+                } catch (e) {
+                    handleError(e)
+                }
+            }
+            const refreshSessionClicked = async () => {
+                if (!selectedSession.value) return
+                try {
+                    await akiles.refreshSession(selectedSession.value)
+                    message.value = 'Session refreshed: ' + selectedSession.value
+                    await fetchSessions()
+                } catch (e) {
+                    handleError(e)
+                }
+            }
+            const deleteSessionClicked = async () => {
+                if (!selectedSession.value) return
+                try {
+                    await akiles.removeSession(selectedSession.value)
+                    message.value = 'Session deleted: ' + selectedSession.value
+                    await fetchSessions()
+                } catch (e) {
+                    handleError(e)
+                }
+            }
+            const refreshAllSessionsClicked = async () => {
+                try {
+                    await akiles.refreshAllSessions()
+                    message.value = 'All sessions refreshed.'
+                    await fetchSessions()
+                } catch (e) {
+                    handleError(e)
+                }
+            }
+            const deleteAllSessionsClicked = async () => {
+                try {
+                    await akiles.removeAllSessions()
+                    message.value = 'All sessions deleted.'
+                    await fetchSessions()
+                } catch (e) {
+                    handleError(e)
+                }
+            }
+            async function fetchGadgets() {
+                if (!selectedSession.value) {
+                    gadgets.value = []
+                    selectedGadget.value = undefined
+                    actions.value = []
+                    selectedAction.value = undefined
+                    return
+                }
+                try {
+                    const result = await akiles.getGadgets(selectedSession.value)
+                    gadgets.value = result
+                    selectedGadget.value = result.length ? result[0].id : undefined
+                } catch (e) {
+                    handleError(e)
+                    gadgets.value = []
+                    selectedGadget.value = undefined
+                }
+            }
+            async function fetchActions() {
+                const gadget = gadgets.value.find(g => g.id === selectedGadget.value)
+                if (gadget && gadget.actions && gadget.actions.length) {
+                    actions.value = gadget.actions
+                    selectedAction.value = gadget.actions[0].id
+                } else {
+                    actions.value = []
+                    selectedAction.value = undefined
+                }
+            }
+            const doActionClicked = () => {
+                if (!selectedSession.value || !selectedGadget.value || !selectedAction.value) return;
+                message.value = 'Performing action...';
+                internetStatus.value = '';
+                bluetoothStatus.value = '';
+
+                cancelAction.value = akiles.action(
+                    selectedSession.value,
+                    selectedGadget.value,
+                    selectedAction.value,
+                    {},
+                    {
+                        onSuccess() {
+                            message.value = 'Action succeeded.';
+                            cancelAction.value = null;
+                        },
+                        onError(e) {
+                            message.value = 'Action error: ' + (e.description || e.message || e);
+                            cancelAction.value = null;
+                        },
+                        onInternetStatus(status) {
+                            internetStatus.value = 'Internet: ' + status;
+                        },
+                        onInternetSuccess() {
+                            internetStatus.value = 'Internet: Success';
+                        },
+                        onInternetError(e) {
+                            internetStatus.value = 'Internet: Error - ' + (e.description || e.message || e);
+                        },
+                        onBluetoothStatus(status) {
+                            bluetoothStatus.value = 'Bluetooth: ' + status;
+                        },
+                        onBluetoothStatusProgress(percent) {
+                            bluetoothStatus.value = 'Bluetooth progress: ' + percent + '%';
+                        },
+                        onBluetoothSuccess() {
+                            bluetoothStatus.value = 'Bluetooth: Success';
+                        },
+                        onBluetoothError(e) {
+                            bluetoothStatus.value = 'Bluetooth: Error - ' + (e.description || e.message || e);
+                        }
+                    }
+                );
+            };
+
+            const cancelActionClicked = () => {
+                if (cancelAction.value) {
+                    cancelAction.value();
+                    cancelAction.value = null;
+                }
+            };
+
+            let scanCallback = null
+            const scanClicked = () => {
+                discoveredHardwares.value = []
+                selectedHardware.value = undefined
+                scanStatus.value = 'Scanning...'
+                if (!selectedSession.value) {
+                    scanStatus.value = 'Select a session first.'
+                    return
+                }
+                cancelScan.value = akiles.scan({
+                    onDiscover(hw) {
+                        discoveredHardwares.value.push(hw);
+                        if (!selectedHardware.value) selectedHardware.value = hw.id;
+                    },
+                    onSuccess() {
+                        scanStatus.value = 'Scan finished.';
+                        cancelScan.value = null;
+                    },
+                    onError(e) {
+                        scanStatus.value = 'Scan error: ' + (e.description || e.message || e);
+                        cancelScan.value = null;
+                    }
+                })
+            }
+            const syncClicked = () => {
+                if (!selectedSession.value || !selectedHardware.value) return
+                scanStatus.value = 'Syncing...'
+                cancelSync.value = akiles.sync(selectedSession.value, selectedHardware.value, {
+                    onStatus(status) {
+                        scanStatus.value = 'Sync: ' + status
+                    },
+                    onStatusProgress(percent) {
+                        scanStatus.value = 'Sync progress: ' + percent + '%'
+                    },
+                    onSuccess() {
+                        scanStatus.value = 'Sync succeeded.'
+                        cancelSync.value = null;
+                    },
+                    onError(e) {
+                        scanStatus.value = 'Sync error: ' + (e.description || e.message || e)
+                        cancelSync.value = null;
+                    }
+                })
+            }
+            const cancelSyncClicked = () => {
+                if (cancelSync.value) {
+                    cancelSync.value();
+                    cancelSync.value = null;
+                }
+            };
+
+            const cancelScanClicked = () => {
+                if (cancelScan.value) {
+                    cancelScan.value();
+                    cancelScan.value = null;
+                }
+            };
+
+            const scanCardClicked = () => {
+                cardScanned.value = false;
+                cardUid.value = '';
+                cardIsAkilesCard.value = false;
+                cardUpdateStatus.value = '';
+
+                cancelScanCard.value = akiles.scanCard({
+                    onSuccess(card) {
+                        cancelScanCard.value = null;
+                        cardScanned.value = true;
+                        cardUid.value = card.uid;
+                        cardIsAkilesCard.value = card.isAkilesCard;
+                        if (card.isAkilesCard) {
+                            cardUpdateStatus.value = 'Updating...';
+                            card.update()
+                                .then(() => {
+                                    cardUpdateStatus.value = 'Update succeeded.';
+                                })
+                                .catch((e) => {
+                                    cardUpdateStatus.value = 'Update error: ' + (e.description || e.message || e);
+                                })
+                                .finally(() => {
+                                    card.close();
+                                });
+                        } else {
+                            card.close();
+                        }
+                    },
+                    onError(e) {
+                        cancelScanCard.value = null;
+                        cardScanned.value = false;
+                        cardUid.value = '';
+                        cardIsAkilesCard.value = false;
+                        cardUpdateStatus.value = '';
+                        message.value = 'Card scan error: ' + (e.description || e.message || e);
+                    }
+                });
+            };
+
+            const cancelScanCardClicked = () => {
+                if (cancelScanCard.value) {
+                    cancelScanCard.value();
+                    cancelScanCard.value = null;
+                }
+            };
+            watch(selectedSession, async () => {
+                await fetchGadgets()
+                await fetchActions()
+            })
+            watch(selectedGadget, fetchActions)
+            onMounted(async () => {
+                await fetchSessions()
+                await fetchGadgets()
+                await fetchActions()
+
+                try {
+                    bluetoothSupported.value = await akiles.isBluetoothSupported();
+                    cardEmulationSupported.value = await akiles.isCardEmulationSupported();
+                } catch (e) {
+                    handleError(e);
+                }
+            })
+            return {
+                message,
+                sessionToken,
+                addSessionClicked,
+                sessions,
+                selectedSession,
+                refreshSessionClicked,
+                deleteSessionClicked,
+                refreshAllSessionsClicked,
+                deleteAllSessionsClicked,
+                gadgets,
+                selectedGadget,
+                actions,
+                selectedAction,
+                doActionClicked,
+                internetStatus,
+                bluetoothStatus,
+                discoveredHardwares,
+                selectedHardware,
+                scanStatus,
+                scanClicked,
+                syncClicked,
+                cardScanned,
+                cardUid,
+                cardIsAkilesCard,
+                cardUpdateStatus,
+                scanCardClicked,
+                cancelScanClicked,
+                cancelScan,
+                cancelScanCardClicked,
+                cancelScanCard,
+                cancelSync,
+                cancelSyncClicked,
+                cancelAction,
+                cancelActionClicked,
+                bluetoothSupported,
+                cardEmulationSupported,
+            }
+        }
+
+        document.addEventListener('deviceready', () => {
+            createApp({ setup }).mount('#app')
+        }, false)
+    </script>
+</body>
+
+</html>
