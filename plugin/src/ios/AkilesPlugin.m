@@ -211,10 +211,18 @@
 
     ActionOptions *options = [ActionOptions initWithDefaults];
     if (optionsDict && [optionsDict isKindOfClass:[NSDictionary class]]) {
-        options.requestBluetoothPermission = [[optionsDict objectForKey:@"requestBluetoothPermission"] boolValue];
-        options.requestLocationPermission = [[optionsDict objectForKey:@"requestLocationPermission"] boolValue];
-        options.useInternet = [[optionsDict objectForKey:@"useInternet"] boolValue];
-        options.useBluetooth = [[optionsDict objectForKey:@"useBluetooth"] boolValue];
+        if (optionsDict[@"requestBluetoothPermission"] != nil) {
+            options.requestBluetoothPermission = [optionsDict[@"requestBluetoothPermission"] boolValue];
+        }
+        if (optionsDict[@"requestLocationPermission"] != nil) {
+            options.requestLocationPermission = [optionsDict[@"requestLocationPermission"] boolValue];
+        }
+        if (optionsDict[@"useInternet"] != nil) {
+            options.useInternet = [optionsDict[@"useInternet"] boolValue];
+        }
+        if (optionsDict[@"useBluetooth"] != nil) {
+            options.useBluetooth = [optionsDict[@"useBluetooth"] boolValue];
+        }
     }
 
     [self.pendingCommands setObject:command forKey:opId];
