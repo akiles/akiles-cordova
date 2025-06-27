@@ -10,5 +10,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'app.akiles:sdk:2.0.0-g56eddff'
+    implementation 'app.akiles:sdk:2.0.0-gd327774'
 }
