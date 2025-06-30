@@ -464,8 +464,9 @@
 #pragma mark - Helper Methods
 
 - (NSDictionary *)errorToDict:(NSError *)error {
+    ErrorCode code = [error code];
     return @{
-        @"code": error.domain,
+        @"code": NSStringFromErrorCode(code),
         @"description": error.localizedDescription
     };
 }
@@ -548,7 +549,7 @@
 - (void)onInternetStatus:(ActionInternetStatus)status {
     CDVInvokedUrlCommand *command = [self.plugin.pendingCommands objectForKey:self.opId];
     if (command) {
-        NSString *statusString = [self internetStatusToString:status];
+        NSString *statusString = NSStringFromActionInternetStatus(status);
         NSDictionary *event = @{
             @"type": @"internet_status",
             @"status": statusString
@@ -579,7 +580,7 @@
 - (void)onBluetoothStatus:(ActionBluetoothStatus)status {
     CDVInvokedUrlCommand *command = [self.plugin.pendingCommands objectForKey:self.opId];
     if (command) {
-        NSString *statusString = [self bluetoothStatusToString:status];
+        NSString *statusString = NSStringFromActionBluetoothStatus(status);
         NSDictionary *event = @{
             @"type": @"bluetooth_status",
             @"status": statusString
@@ -666,7 +667,7 @@
 - (void)onStatus:(SyncStatus)status {
     CDVInvokedUrlCommand *command = [self.plugin.pendingCommands objectForKey:self.opId];
     if (command) {
-        NSString *statusString = [self syncStatusToString:status];
+        NSString *statusString = NSStringFromSyncStatus(status);
         NSDictionary *event = @{
             @"type": @"status",
             @"status": statusString
