@@ -216,8 +216,10 @@ module.exports = {
         });
     },
     /* IOS ONLY */
-    startCardEmulation: function (language, success, failure) {
-        cordova.exec(success, failure, 'AKILES', 'start_card_emulation', [language]);
+    startCardEmulation: function (language) {
+        return new Promise((resolve, reject) => {
+            cordova.exec(resolve, reject, 'AKILES', 'start_card_emulation', [language]);
+        });
     },
     AkilesError,
 };
