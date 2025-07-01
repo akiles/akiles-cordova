@@ -23,6 +23,7 @@ import app.akiles.sdk.Gadget;
 import app.akiles.sdk.Hardware;
 import app.akiles.sdk.Card;
 import app.akiles.sdk.ActionOptions;
+import app.akiles.sdk.Schedule;
 
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
@@ -640,12 +641,62 @@ public class AkilesPlugin extends CordovaPlugin {
         try {
             obj.put("code", ex.code.toString());
             obj.put("description", ex.getMessage());
+
+            // Check for PermissionDenied subclass
+            if (ex instanceof AkilesException.PermissionDenied) {
+                AkilesException.PermissionDenied permissionDenied = (AkilesException.PermissionDenied) ex;
+                obj.put("reason", permissionDenied.reason.toString());
+
+                // Check for PermissionDeniedNotStarted subclass
+                if (ex instanceof AkilesException.PermissionDeniedNotStarted) {
+                    AkilesException.PermissionDeniedNotStarted notStarted = (AkilesException.PermissionDeniedNotStarted) ex;
+                    obj.put("startsAt", notStarted.startsAt);
+                }
+                // Check for PermissionDeniedEnded subclass
+                else if (ex instanceof AkilesException.PermissionDeniedEnded) {
+                    AkilesException.PermissionDeniedEnded ended = (AkilesException.PermissionDeniedEnded) ex;
+                    obj.put("endsAt", ended.endsAt);
+                }
+                // Check for PermissionDeniedOutOfSchedule subclass
+                else if (ex instanceof AkilesException.PermissionDeniedOutOfSchedule) {
+                    AkilesException.PermissionDeniedOutOfSchedule outOfSchedule = (AkilesException.PermissionDeniedOutOfSchedule) ex;
+                    obj.put("waitTime", outOfSchedule.waitTime);
+                    obj.put("timezone", outOfSchedule.timezone);
+
+                    // Serialize the schedule object
+                    if (outOfSchedule.schedule != null) {
+                        JSONObject scheduleObj = new JSONObject();
+                        JSONArray weekdaysArray = new JSONArray();
+                        
+                        if (outOfSchedule.schedule.weekdays != null) {
+                            for (Schedule.Weekday weekday : outOfSchedule.schedule.weekdays) {
+                                JSONObject weekdayObj = new JSONObject();
+                                JSONArray rangesArray = new JSONArray();
+                                
+                                if (weekday.ranges != null) {
+                                    for (Schedule.Range range : weekday.ranges) {
+                                        JSONObject rangeObj = new JSONObject();
+                                        rangeObj.put("start", range.start);
+                                        rangeObj.put("end", range.end);
+                                        rangesArray.put(rangeObj);
+                                    }
+                                }
+                                weekdayObj.put("ranges", rangesArray);
+                                weekdaysArray.put(weekdayObj);
+                            }
+                        }
+                        scheduleObj.put("weekdays", weekdaysArray);
+                        obj.put("schedule", scheduleObj);
+                    }
+                }
+            }
         } catch (JSONException e) {
             LOG.e(TAG, "JSONException", e);
             // fallback: just description
             try {
                 obj.put("description", ex.getMessage());
-            } catch (JSONException ignored) {
+            } catch (JSONException ee) {
+                LOG.e(TAG, "JSONException", ee);
             }
         }
         return obj;

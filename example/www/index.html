@@ -20,7 +20,7 @@
             <input type="text" v-model="sessionToken" placeholder="Session token" />
             <button @click="addSessionClicked" :disabled="!sessionToken">Add Session</button>
         </div>
-        <div>{{ message }}</div>
+        <div class="message">{{ message }}</div>
         <select v-model="selectedSession">
             <option v-for="session in sessions" :key="session" :value="session">{{ session }}</option>
         </select>
@@ -45,8 +45,8 @@
             <div v-if="cancelAction" class="spinner"></div>
             <button v-if="cancelAction" @click="cancelActionClicked">Cancel</button>
         </div>
-        <div>{{ internetStatus }}</div>
-        <div>{{ bluetoothStatus }}</div>
+        <div class="message">{{ internetStatus }}</div>
+        <div class="message">{{ bluetoothStatus }}</div>
 
         <h3>Scan</h3>
         Bluetooth is <b>{{ bluetoothSupported ? 'Supported' : 'Not Supported' }}</b> on this device.
@@ -60,11 +60,12 @@
             </option>
         </select>
         <div class="input-row">
-            <button @click="syncClicked" :disabled="!selectedSession || !selectedHardware || cancelScan || cancelSync">Sync</button>
+            <button @click="syncClicked"
+                :disabled="!selectedSession || !selectedHardware || cancelScan || cancelSync">Sync</button>
             <div v-if="cancelSync" class="spinner"></div>
             <button v-if="cancelSync" @click="cancelSyncClicked">Cancel</button>
         </div>
-        <div class="scan-status">{{ scanStatus }}</div>
+        <div class="message">{{ scanStatus }}</div>
 
         <h3>Card</h3>
         Card Emulation is <b>{{ cardEmulationSupported ? 'Supported' : 'Not Supported' }}</b> on this device.
@@ -76,12 +77,27 @@
         <div v-if="cardScanned">
             <div>UID: {{ cardUid }}</div>
             <div>isAkilesCard: {{ cardIsAkilesCard ? 'Yes' : 'No' }}</div>
-            <div v-if="cardIsAkilesCard">Update status: {{ cardUpdateStatus }}</div>
+            <div v-if="cardIsAkilesCard" class="message">Update status: {{ cardUpdateStatus }}</div>
         </div>
     </div>
 
     <script>
         const { createApp, ref, onMounted, watch } = Vue
+
+        function describeError(e) {
+            if (typeof e === 'string') return e;
+            if (!e || typeof e !== 'object') return String(e);
+
+            const lines = [e.message];
+            for (const [key, value] of Object.entries(e)) {
+                if (key == 'name') continue;
+                if (value !== undefined && value !== null) {
+                    const valueStr = (typeof value === 'object') ? JSON.stringify(value) : String(value);
+                    lines.push(`\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0${key}: ${valueStr}`);
+                }
+            }
+            return lines.join('\n');
+        }
 
         function setup() {
             const message = ref('Welcome to Akiles SDK Demo!')
@@ -110,7 +126,7 @@
 
             function handleError(e) {
                 console.error('Error:', e)
-                message.value = 'Error: ' + JSON.stringify(e)
+                message.value = 'Error: ' + describeError(e)
             }
             const fetchSessions = async () => {
                 try {
@@ -217,7 +233,7 @@
                             cancelAction.value = null;
                         },
                         onError(e) {
-                            message.value = 'Action error: ' + (e.description || e.message || e);
+                            message.value = 'Action error: ' + describeError(e);
                             cancelAction.value = null;
                         },
                         onInternetStatus(status) {
@@ -227,7 +243,7 @@
                             internetStatus.value = 'Internet: Success';
                         },
                         onInternetError(e) {
-                            internetStatus.value = 'Internet: Error - ' + (e.description || e.message || e);
+                            internetStatus.value = 'Internet: Error - ' + describeError(e);
                         },
                         onBluetoothStatus(status) {
                             bluetoothStatus.value = 'Bluetooth: ' + status;
@@ -239,7 +255,7 @@
                             bluetoothStatus.value = 'Bluetooth: Success';
                         },
                         onBluetoothError(e) {
-                            bluetoothStatus.value = 'Bluetooth: Error - ' + (e.description || e.message || e);
+                            bluetoothStatus.value = 'Bluetooth: Error - ' + describeError(e);
                         }
                     }
                 );
@@ -271,7 +287,7 @@
                         cancelScan.value = null;
                     },
                     onError(e) {
-                        scanStatus.value = 'Scan error: ' + (e.description || e.message || e);
+                        scanStatus.value = 'Scan error: ' + describeError(e);
                         cancelScan.value = null;
                     }
                 })
@@ -291,7 +307,7 @@
                         cancelSync.value = null;
                     },
                     onError(e) {
-                        scanStatus.value = 'Sync error: ' + (e.description || e.message || e)
+                        scanStatus.value = 'Sync error: ' + describeError(e)
                         cancelSync.value = null;
                     }
                 })
@@ -329,7 +345,7 @@
                                     cardUpdateStatus.value = 'Update succeeded.';
                                 })
                                 .catch((e) => {
-                                    cardUpdateStatus.value = 'Update error: ' + (e.description || e.message || e);
+                                    cardUpdateStatus.value = 'Update error: ' + describeError(e);
                                 })
                                 .finally(() => {
                                     card.close();
@@ -344,7 +360,7 @@
                         cardUid.value = '';
                         cardIsAkilesCard.value = false;
                         cardUpdateStatus.value = '';
-                        message.value = 'Card scan error: ' + (e.description || e.message || e);
+                        message.value = 'Card scan error: ' + describeError(e);
                     }
                 });
             };

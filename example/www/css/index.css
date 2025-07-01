@@ -189,6 +189,11 @@ a:hover {
     animation: spin 1s linear infinite; /* Infinite rotation */
 }
 
+/* Preserve whitespace and line breaks for error messages */
+.message {
+    white-space: pre-line;
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
