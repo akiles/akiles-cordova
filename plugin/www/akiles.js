@@ -28,6 +28,8 @@ function toAkilesError(err) {
         if (err.schedule) e.schedule = err.schedule;
         if (err.waitTime) e.waitTime = err.waitTime;
         if (err.timezone) e.timezone = err.timezone;
+        if (err.siteGeo) e.siteGeo = err.siteGeo;
+        if (err.distance !== undefined) e.distance = err.distance;
 
         return e;
     }

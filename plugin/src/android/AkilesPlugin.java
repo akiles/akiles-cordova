@@ -642,8 +642,27 @@ public class AkilesPlugin extends CordovaPlugin {
             obj.put("code", ex.code.toString());
             obj.put("description", ex.getMessage());
 
+            // Check for LocationOutOfRadius subclass
+            if (ex instanceof AkilesException.LocationOutOfRadius) {
+                AkilesException.LocationOutOfRadius locationOutOfRadius = (AkilesException.LocationOutOfRadius) ex;
+                obj.put("distance", locationOutOfRadius.distance);
+
+                // Serialize the siteGeo object
+                if (locationOutOfRadius.siteGeo != null) {
+                    JSONObject siteGeoObj = new JSONObject();
+                    siteGeoObj.put("radius", locationOutOfRadius.siteGeo.radius);
+                    
+                    if (locationOutOfRadius.siteGeo.location != null) {
+                        JSONObject locationObj = new JSONObject();
+                        locationObj.put("lat", locationOutOfRadius.siteGeo.location.lat);
+                        locationObj.put("lng", locationOutOfRadius.siteGeo.location.lng);
+                        siteGeoObj.put("location", locationObj);
+                    }
+                    obj.put("siteGeo", siteGeoObj);
+                }
+            }
             // Check for PermissionDenied subclass
-            if (ex instanceof AkilesException.PermissionDenied) {
+            else if (ex instanceof AkilesException.PermissionDenied) {
                 AkilesException.PermissionDenied permissionDenied = (AkilesException.PermissionDenied) ex;
                 obj.put("reason", permissionDenied.reason.toString());
 

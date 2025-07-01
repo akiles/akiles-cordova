@@ -8,12 +8,12 @@ export enum ErrorCode {
      * Akiles for help.
      */
     INTERNAL = 'INTERNAL',
-  
+
     /**
      * Invalid parameter. The `message` field contains extra information.
      */
     INVALID_PARAM = 'INVALID_PARAM',
-  
+
     /**
      * The session token is invalid. Possible causes:
      * - The session token has an incorrect format.
@@ -22,12 +22,12 @@ export enum ErrorCode {
      * - The member token has been deleted.
      */
     INVALID_SESSION = 'INVALID_SESSION',
-  
+
     /**
      * The current session does not have permission to do the requested action on the device.
      */
     PERMISSION_DENIED = 'PERMISSION_DENIED',
-  
+
     /**
      * All communication methods (Internet, Bluetooth) have failed.
      *
@@ -35,18 +35,18 @@ export enum ErrorCode {
      * on why each method failed.
      */
     ALL_COMM_METHODS_FAILED = 'ALL_COMM_METHODS_FAILED',
-  
+
     /**
      * Phone has no internet access.
      */
     INTERNET_NOT_AVAILABLE = 'INTERNET_NOT_AVAILABLE',
-  
+
     /**
      * Phone has internet access and could reach the Akiles server, but the Akiles server could
      * not reach the device because it's either offline or turned off.
      */
     INTERNET_DEVICE_OFFLINE = 'INTERNET_DEVICE_OFFLINE',
-  
+
     /**
      * The organization administrator has enabled geolocation check for this device, and the
      * phone's location services indicate it's outside the maximum radius.
@@ -55,85 +55,85 @@ export enum ErrorCode {
      * already guarantees you're near the device without need for geolocation checking.
      */
     INTERNET_LOCATION_OUT_OF_RADIUS = 'INTERNET_LOCATION_OUT_OF_RADIUS',
-  
+
     /**
      * The organization administrator has configured this device so it doesn't accept actions via
      * the internet communication method. Other methods such as Bluetooth, PINs, cards, NFC might work.
      */
     INTERNET_NOT_PERMITTED = 'INTERNET_NOT_PERMITTED',
-  
+
     /**
      * The device is not within Bluetooth range, or is turned off.
      */
     BLUETOOTH_DEVICE_NOT_FOUND = 'BLUETOOTH_DEVICE_NOT_FOUND',
-  
+
     /**
      * The phone has bluetooth turned off, the user should enable it.
      */
     BLUETOOTH_DISABLED = 'BLUETOOTH_DISABLED',
-  
+
     /**
      * The phone has no bluetooth support.
      */
     BLUETOOTH_NOT_AVAILABLE = 'BLUETOOTH_NOT_AVAILABLE',
-  
+
     /**
      * The phone has bluetooth support, but the user hasn't granted permission for it to the app.
      */
     BLUETOOTH_PERMISSION_NOT_GRANTED = 'BLUETOOTH_PERMISSION_NOT_GRANTED',
-  
+
     /**
      * The user hasn't granted Bluetooth permission to the app permanently.
      * You should show some UI directing the user to the "app info" section to grant it.
      */
     BLUETOOTH_PERMISSION_NOT_GRANTED_PERMANENTLY = 'BLUETOOTH_PERMISSION_NOT_GRANTED_PERMANENTLY',
-  
+
     /**
      * Operation timed out.
      */
     TIMEOUT = 'TIMEOUT',
-  
+
     /**
      * Operation has been canceled.
      */
     CANCELED = 'CANCELED',
-  
+
     /**
      * This phone has no NFC support.
      */
     NFC_NOT_AVAILABLE = 'NFC_NOT_AVAILABLE',
-  
+
     /**
      * NFC read error. The user either moved the card away too soon, or the card is not compatible.
      */
     NFC_READ_ERROR = 'NFC_READ_ERROR',
-  
+
     /**
      * This NFC card is not compatible with Akiles devices.
      */
     NFC_CARD_NOT_COMPATIBLE = 'NFC_CARD_NOT_COMPATIBLE',
-  
+
     /**
      * The phone has location turned off, the user should enable it.
      */
     LOCATION_DISABLED = 'LOCATION_DISABLED',
-  
+
     /**
      * The phone has no location support.
      */
     LOCATION_NOT_AVAILABLE = 'LOCATION_NOT_AVAILABLE',
-  
+
     /**
      * The phone has location support, but the user hasn't granted permission for it to the app.
      */
     LOCATION_PERMISSION_NOT_GRANTED = 'LOCATION_PERMISSION_NOT_GRANTED',
-  
+
     /**
      * The user hasn't granted location permission to the app permanently.
      * You should show some UI directing the user to the "app info" section to grant it.
      */
     LOCATION_PERMISSION_NOT_GRANTED_PERMANENTLY = 'LOCATION_PERMISSION_NOT_GRANTED_PERMANENTLY',
-  
+
     /**
      * The phone failed to acquire a GNSS fix in reasonable time, probably because it has bad coverage (it's indoors, etc).
      */
@@ -176,6 +176,16 @@ export class AkilesError extends Error {
      * Timezone the schedule is interpreted in. TZDB name, example `Europe/Madrid`. Only present if `reason` is `OUT_OF_SCHEDULE`.
      */
     timezone?: string;
+
+    /**
+     * Geolocation restriction of the site. Only present if `code` is `INTERNET_LOCATION_OUT_OF_RADIUS`.
+     */
+    siteGeo?: SiteGeo;
+
+    /**
+     * Actual distance to the site, in meters. Only present if `code` is `INTERNET_LOCATION_OUT_OF_RADIUS`.
+     */
+    distance?: number;
 
     constructor(code: ErrorCode, message: string);
 }
@@ -225,6 +235,28 @@ export interface ScheduleRange {
 
     /** End of the range, in seconds since midnight (exclusive). */
     end: number;
+}
+
+/**
+ * Represents a geographic location.
+ */
+export interface Location {
+    /** Latitude, in degrees. */
+    lat: number;
+
+    /** Longitude, in degrees. */
+    lng: number;
+}
+
+/**
+ * Represents geolocation restriction of a site.
+ */
+export interface SiteGeo {
+    /** Location. */
+    location: Location;
+
+    /** Max radius, in meters. */
+    radius: number;
 }
 
 /**
