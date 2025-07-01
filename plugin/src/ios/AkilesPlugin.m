@@ -465,11 +465,27 @@
 
 - (NSDictionary *)errorToDict:(NSError *)error {
     ErrorCode code = [error code];
-    return @{
-        @"code": NSStringFromErrorCode(code),
-        @"description": error.localizedDescription
-    };
+    NSDictionary *dict = [error userInfo];
+    if (dict != nil && dict[@"reason"] != nil) {
+        NSMutableDictionary *reason = dict[@"reason"];
+        NSMutableDictionary *args = [[NSMutableDictionary alloc] initWithDictionary:reason];
+        if (reason[@"schedule"]) {
+            Schedule *schedule = reason[@"schedule"];
+            args[@"schedule"] = NSDictionaryFromSchedule(schedule);
+        }
+        return @{
+            @"code": NSStringFromErrorCode(code),
+            @"description": error.localizedDescription,
+            @"args": args,
+        };
+    } else {
+        return @{
+            @"code": NSStringFromErrorCode(code),
+            @"description": error.localizedDescription
+        };
+    }
 }
+
 
 - (NSDictionary *)gadgetToDict:(Gadget *)gadget {
     NSMutableArray *actions = [[NSMutableArray alloc] init];
