@@ -67,6 +67,12 @@ public class AkilesPlugin extends CordovaPlugin {
             case "get_session_ids":
                 getSessionIDs(callbackContext);
                 return true;
+            case "get_version":
+                getVersion(callbackContext);
+                return true;
+            case "get_client_info":
+                getClientInfo(callbackContext);
+                return true;
             case "add_session":
                 String token = args.getString(0);
                 addSession(callbackContext, token);
@@ -153,6 +159,26 @@ public class AkilesPlugin extends CordovaPlugin {
         } catch (AkilesException e) {
             LOG.e(TAG, "Error getting session IDs", e);
             callbackContext.error(akilesExceptionToJson(e));
+        }
+    }
+
+    private void getVersion(CallbackContext callbackContext) {
+        try {
+            String version = ak.getVersion();
+            callbackContext.success(version);
+        } catch (Exception e) {
+            LOG.e(TAG, "Error getting version", e);
+            callbackContext.error("Error getting version: " + e.getMessage());
+        }
+    }
+
+    private void getClientInfo(CallbackContext callbackContext) {
+        try {
+            String clientInfo = ak.getClientInfo();
+            callbackContext.success(clientInfo);
+        } catch (Exception e) {
+            LOG.e(TAG, "Error getting client info", e);
+            callbackContext.error("Error getting client info: " + e.getMessage());
         }
     }
 

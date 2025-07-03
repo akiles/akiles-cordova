@@ -511,6 +511,13 @@ export interface Akiles {
     getSessionIDs(): Promise<string[]>;
 
     /**
+     * Get the version of the Akiles SDK.
+     *
+     * @returns A promise that resolves to the version string of the SDK.
+     */
+    getVersion(): Promise<string>;
+
+    /**
      * Add a session to the session store.
      *
      * If the session store already contains the session, this is a noop.

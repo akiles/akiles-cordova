@@ -15,6 +15,7 @@
 
 <body>
     <div id="app">
+        <div class="version">Akiles SDK Version: {{ sdkVersion }}</div>
         <h3>Sessions</h3>
         <div class="input-row">
             <input type="text" v-model="sessionToken" placeholder="Session token" />
@@ -123,6 +124,7 @@
             const cancelAction = ref(null);
             const bluetoothSupported = ref(false);
             const cardEmulationSupported = ref(false);
+            const sdkVersion = ref('Loading...');
 
             function handleError(e) {
                 console.error('Error:', e)
@@ -384,6 +386,7 @@
                 try {
                     bluetoothSupported.value = await akiles.isBluetoothSupported();
                     cardEmulationSupported.value = await akiles.isCardEmulationSupported();
+                    sdkVersion.value = await akiles.getVersion();
                 } catch (e) {
                     handleError(e);
                 }
@@ -425,6 +428,7 @@
                 cancelActionClicked,
                 bluetoothSupported,
                 cardEmulationSupported,
+                sdkVersion,
             }
         }
 

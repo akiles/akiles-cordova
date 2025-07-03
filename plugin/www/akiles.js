@@ -55,6 +55,12 @@ module.exports = {
     getSessionIDs: function () {
         return execPromise('get_session_ids');
     },
+    getVersion: function () {
+        return execPromise('get_version');
+    },
+    getClientInfo: function () {
+        return execPromise('get_client_info');
+    },
     addSession: function (token) {
         return execPromise('add_session', [token]);
     },
