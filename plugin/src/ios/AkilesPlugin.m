@@ -237,12 +237,13 @@
 - (void)start_card_emulation:(CDVInvokedUrlCommand*)command {
     NSString *language = [command argumentAtIndex:0];
 
-    [self.akilesSDK startCardEmulation:language completion:^(BOOL success, NSError * _Nullable error) {
+    [self.akilesSDK startCardEmulation:^(BOOL success, NSError *error) {
         CDVPluginResult *pluginResult = nil;
         if (error) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
+            NSDictionary *errorDict = [self errorToDict:error];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:errorDict];
         } else {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"OK"];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:success];
         }
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
