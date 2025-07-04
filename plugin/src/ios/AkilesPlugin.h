@@ -4,6 +4,7 @@
 @interface AkilesPlugin : CDVPlugin
 
 @property (nonatomic, strong) Akiles *akilesSDK;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, id<Cancellable>> *cancelTokens;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, CDVInvokedUrlCommand *> *pendingCommands;
 @property (nonatomic, strong) Card *currentCard;
 
@@ -25,6 +26,8 @@
 - (void)is_bluetooth_supported:(CDVInvokedUrlCommand*)command;
 - (void)is_card_emulation_supported:(CDVInvokedUrlCommand*)command;
 - (void)start_card_emulation:(CDVInvokedUrlCommand *)command;
+
+- (NSString *)dataToHexString:(NSData *)data;
 
 @end
 

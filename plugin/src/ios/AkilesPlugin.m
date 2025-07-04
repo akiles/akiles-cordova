@@ -9,6 +9,7 @@
     if (@available(iOS 13.0, *)) {
         self.akilesSDK = [[Akiles alloc] init];
     }
+    self.cancelTokens = [[NSMutableDictionary alloc] init];
     self.pendingCommands = [[NSMutableDictionary alloc] init];
     self.currentCard = nil;
 }
@@ -16,18 +17,14 @@
 #pragma mark - Session Management
 
 - (void)get_session_ids:(CDVInvokedUrlCommand*)command {
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK getSessionIDs:^(NSArray<NSString *> * _Nullable sessionIDs, NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:(sessionIDs ?: @[])];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -51,18 +48,14 @@
         return;
     }
 
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK addSession:token completion:^(NSString * _Nullable sessionID, NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:sessionID];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -74,34 +67,26 @@
         return;
     }
 
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK removeSession:sessionID completion:^(NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
 - (void)remove_all_sessions:(CDVInvokedUrlCommand*)command {
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK removeAllSessions:^(NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -113,34 +98,26 @@
         return;
     }
 
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK refreshSession:sessionID completion:^(NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
 - (void)refresh_all_sessions:(CDVInvokedUrlCommand*)command {
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK refreshAllSessions:^(NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -154,22 +131,18 @@
         return;
     }
 
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK getGadgets:sessionID completion:^(NSArray<Gadget *> * _Nullable gadgets, NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             NSMutableArray *gadgetsArray = [[NSMutableArray alloc] init];
             for (Gadget *gadget in gadgets) {
-                [gadgetsArray addObject:[strongSelf gadgetToDict:gadget]];
+                [gadgetsArray addObject:[self gadgetToDict:gadget]];
             }
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:gadgetsArray];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -181,22 +154,18 @@
         return;
     }
 
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK getHardwares:sessionID completion:^(NSArray<Hardware *> * _Nullable hardwares, NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             NSMutableArray *hardwaresArray = [[NSMutableArray alloc] init];
             for (Hardware *hardware in hardwares) {
-                [hardwaresArray addObject:[strongSelf hardwareToDict:hardware]];
+                [hardwaresArray addObject:[self hardwareToDict:hardware]];
             }
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:hardwaresArray];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -237,13 +206,14 @@
         }
     }
 
+
     [self.pendingCommands setObject:command forKey:opId];
-
     AkilesActionCallback *callback = [[AkilesActionCallback alloc] initWithPlugin:self opId:opId];
-
-    [self.akilesSDK action:sessionID gadgetID:gadgetID actionID:actionID options:options callback:callback completion:^{
-        // Completion handler - action is done
+    id<Cancellable> cancellable = [self.akilesSDK action:sessionID gadgetID:gadgetID actionID:actionID options:options callback:callback completion:^{
+        [self.cancelTokens removeObjectForKey:opId];
+        [self.pendingCommands removeObjectForKey:opId];
     }];
+    [self.cancelTokens setObject:cancellable forKey:opId];
 }
 
 - (void)start_card_emulation:(CDVInvokedUrlCommand*)command {
@@ -270,48 +240,39 @@
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         return;
     }
-
     [self.pendingCommands setObject:command forKey:opId];
 
-    __weak __typeof__(self) weakSelf = self;
-    [self.akilesSDK scan:^(Hardware * _Nonnull hardware) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
+    id<Cancellable> cancellable = [self.akilesSDK scan:^(Hardware * _Nonnull hardware) {
         NSDictionary *event = @{
             @"type": @"discover",
-            @"hardware": [strongSelf hardwareToDict:hardware]
+            @"hardware": [self hardwareToDict:hardware]
         };
 
-        CDVInvokedUrlCommand *cmd = [strongSelf.pendingCommands objectForKey:opId];
-        if (cmd) {
-            CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:event];
-            [result setKeepCallbackAsBool:YES];
-            [strongSelf.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
-        }
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:event];
+        [result setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     } completion:^(NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
-        CDVInvokedUrlCommand *cmd = [strongSelf.pendingCommands objectForKey:opId];
-        if (cmd) {
-            [strongSelf.pendingCommands removeObjectForKey:opId];
-
-            NSDictionary *event;
-            if (error) {
-                event = @{
-                    @"type": @"error",
-                    @"error": [strongSelf errorToDict:error]
-                };
-            } else {
-                event = @{@"type": @"success"};
-            }
-
-            CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:event];
-            [result setKeepCallbackAsBool:NO];
-            [strongSelf.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        if (![self.cancelTokens objectForKey:opId]) {
+            return;
         }
+        [self.cancelTokens removeObjectForKey:opId];
+        [self.pendingCommands removeObjectForKey:opId];
+        NSDictionary *event;
+        if (error) {
+            event = @{
+                @"type": @"error",
+                @"error": [self errorToDict:error]
+            };
+        } else {
+            event = @{@"type": @"success"};
+        }
+
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:event];
+        [result setKeepCallbackAsBool:NO];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
+
+    [self.cancelTokens setObject:cancellable forKey:opId];
 }
 
 #pragma mark - Sync
@@ -334,33 +295,26 @@
     }
 
     [self.pendingCommands setObject:command forKey:opId];
-
     AkilesSyncCallback *callback = [[AkilesSyncCallback alloc] initWithPlugin:self opId:opId];
+    id<Cancellable> cancellable = [self.akilesSDK sync:sessionID hardwareID:hardwareID callback:callback completion:^(NSError * _Nullable error) {
+        [self.cancelTokens removeObjectForKey:opId];
+        [self.pendingCommands removeObjectForKey:opId];
 
-    __weak __typeof__(self) weakSelf = self;
-    [self.akilesSDK sync:sessionID hardwareID:hardwareID callback:callback completion:^(NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
-        CDVInvokedUrlCommand *cmd = [strongSelf.pendingCommands objectForKey:opId];
-        if (cmd) {
-            [strongSelf.pendingCommands removeObjectForKey:opId];
-
-            NSDictionary *event;
-            if (error) {
-                event = @{
-                    @"type": @"error",
-                    @"error": [strongSelf errorToDict:error]
-                };
-            } else {
-                event = @{@"type": @"success"};
-            }
-
-            CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:event];
-            [result setKeepCallbackAsBool:NO];
-            [strongSelf.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+        NSDictionary *event;
+        if (error) {
+            event = @{
+                @"type": @"error",
+                @"error": [self errorToDict:error]
+            };
+        } else {
+            event = @{@"type": @"success"};
         }
+
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:event];
+        [result setKeepCallbackAsBool:NO];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
+    [self.cancelTokens setObject:cancellable forKey:opId];
 }
 
 #pragma mark - Card Operations
@@ -373,36 +327,28 @@
         return;
     }
 
-    [self.pendingCommands setObject:command forKey:opId];
+    id<Cancellable> cancellable = [self.akilesSDK scanCard:^(Card * _Nullable card, NSError * _Nullable error) {
+        [self.cancelTokens removeObjectForKey:opId];
 
-    __weak __typeof__(self) weakSelf = self;
-    [self.akilesSDK scanCard:^(Card * _Nullable card, NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
+        CDVPluginResult* result;
+        if (error) {
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
+        } else if (card) {
+            self.currentCard = card;
+            NSData *uidData = [card getUid];
+            NSString *uidHex = [self dataToHexString:uidData];
 
-        CDVInvokedUrlCommand *cmd = [strongSelf.pendingCommands objectForKey:opId];
-        if (cmd) {
-            [strongSelf.pendingCommands removeObjectForKey:opId];
-
-            CDVPluginResult* result;
-            if (error) {
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
-            } else if (card) {
-                strongSelf.currentCard = card;
-                NSData *uidData = [card getUid];
-                NSString *uidHex = [strongSelf dataToHexString:uidData];
-
-                NSDictionary *cardDict = @{
-                    @"isAkilesCard": @([card isAkilesCard]),
-                    @"uid": uidHex
-                };
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:cardDict];
-            } else {
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No card scanned"];
-            }
-            [strongSelf.commandDelegate sendPluginResult:result callbackId:cmd.callbackId];
+            NSDictionary *cardDict = @{
+                @"isAkilesCard": @([card isAkilesCard]),
+                @"uid": uidHex
+            };
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:cardDict];
+        } else {
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No card scanned"];
         }
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
+    [self.cancelTokens setObject:cancellable forKey:opId];
 }
 
 - (void)update_card:(CDVInvokedUrlCommand*)command {
@@ -412,18 +358,14 @@
         return;
     }
 
-    __weak __typeof__(self) weakSelf = self;
     [self.currentCard update:^(NSError * _Nullable error) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result;
         if (error) {
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[strongSelf errorToDict:error]];
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
         } else {
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         }
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -437,16 +379,13 @@
 
 - (void)cancel:(CDVInvokedUrlCommand*)command {
     NSString *opId = [command.arguments objectAtIndex:0];
-    if (!opId || ![opId isKindOfClass:[NSString class]]) {
-        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid opId parameter"];
+    id<Cancellable> cancellable = [self.cancelTokens objectForKey:opId];
+    if (cancellable) {
+        [self.cancelTokens removeObjectForKey:opId];
+        [cancellable cancel];
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-        return;
     }
-
-    [self.pendingCommands removeObjectForKey:opId];
-
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
 #pragma mark - Support Methods
@@ -464,13 +403,9 @@
 }
 
 - (void)is_card_emulation_supported:(CDVInvokedUrlCommand*)command {
-    __weak __typeof__(self) weakSelf = self;
     [self.akilesSDK isCardEmulationSupported:^(BOOL isSupported) {
-        __strong __typeof__(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) return;
-
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:isSupported];
-        [strongSelf.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
 
@@ -513,6 +448,7 @@
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
+
 - (NSString *)dataToHexString:(NSData *)data {
     const unsigned char *bytes = (const unsigned char *)[data bytes];
     NSMutableString *hex = [[NSMutableString alloc] init];
@@ -522,7 +458,9 @@
     return [hex copy];
 }
 
+
 @end
+
 
 #pragma mark - Action Callback Implementation
 
