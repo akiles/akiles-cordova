@@ -31,6 +31,18 @@
     }];
 }
 
+- (void)get_client_info:(CDVInvokedUrlCommand*)command {
+    NSString *version = [self.akilesSDK getVersion];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:version];
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
+
+- (void)get_version:(CDVInvokedUrlCommand*)command {
+    NSString *clientInfo = [self.akilesSDK getClientInfo];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:clientInfo];
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
+
 - (void)add_session:(CDVInvokedUrlCommand*)command {
     NSString *token = [command.arguments objectAtIndex:0];
     if (!token || ![token isKindOfClass:[NSString class]]) {
