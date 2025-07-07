@@ -29,13 +29,13 @@
 }
 
 - (void)get_client_info:(CDVInvokedUrlCommand*)command {
-    NSString *version = [self.akilesSDK getVersion];
+    NSString *version = [self.akilesSDK getClientInfo];
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:version];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
 - (void)get_version:(CDVInvokedUrlCommand*)command {
-    NSString *clientInfo = [self.akilesSDK getClientInfo];
+    NSString *clientInfo = [self.akilesSDK getVersion];
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:clientInfo];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
