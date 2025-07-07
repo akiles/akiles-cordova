@@ -17,8 +17,8 @@
     <source-file src="src/android/AkilesPlugin.java" target-dir="src/app/akiles/cordova"/>
   </platform>
   <platform name="ios">
-    <preference name="deployment-target" default="13.0" />
-    <preference name="IPHONEOS_DEPLOYMENT_TARGET" default="13.0" />
+    <preference name="deployment-target" default="11.0" />
+    <preference name="IPHONEOS_DEPLOYMENT_TARGET" default="11.0" />
     <preference name="IOS_INIT_ON_LOAD" default="true"/>
     <preference name="BLUETOOTH_RESTORE_STATE" default="false"/>
     <!-- <preference name="UseSwiftLanguageVersion" value="5" /> -->
