@@ -370,6 +370,7 @@
 }
 
 - (void)close_card:(CDVInvokedUrlCommand*)command {
+    [self.currentCard close];
     self.currentCard = nil;
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
