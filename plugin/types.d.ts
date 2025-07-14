@@ -656,6 +656,22 @@ export interface Akiles {
      * @returns true if card emulation is supported, false otherwise.
      */
     isCardEmulationSupported(): Promise<boolean>;
+
+    /**
+     * Returns whether secure NFC is supported on this phone.
+     *
+     * @returns true if card secure NFC is supported, false otherwise.
+     */
+    isSecureNFCSupported(): Promise<boolean>;
+
+    /**
+     * **iOS ONLY** - Start a card emulation session.
+     * 
+     * Do not call this on Android. Card emulation on Android works system-wide out of the
+     * box, the only requirements is your app is installed and the session has been added.
+     * The user doesn't even have to open the app.
+     */
+    startCardEmulation(): Promise<void>;
 }
 
 

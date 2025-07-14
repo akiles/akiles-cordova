@@ -1,22 +1,10 @@
 # akiles-cordova
 
-This plugin defines a global `akiles` object.
-Although the object is in the global scope, it is not available until after the `deviceready` event.
+Akiles SDK Cordova plugin
 
-```js
-document.addEventListener("deviceready", onDeviceReady, false);
-function onDeviceReady() {
-    console.log(akiles);
-}
-```
+Documentation: https://dev.akiles.app/sdk/cordova/
 
-## Installation
-
-    cordova plugin add akiles-cordova
-
-## Example
-
-The `example/` directory contains an example app showcasing all the SDK functionality.
+Support: email support@akiles.app
 
 ## License
 

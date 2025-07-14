@@ -29,12 +29,9 @@
     </config-file>
     <header-file src="src/ios/AkilesPlugin.h" target-dir="AkilesPlugin"/>
     <source-file src="src/ios/AkilesPlugin.m" target-dir="AkilesPlugin"/>
-    <!-- pods
-    <pods>
-    </pods>-->
     <podspec>
       <pods use-frameworks="true">
-        <pod name="AkilesSDK" git="https://github.com/akiles/akiles-ios.git" branch="main" />
+        <pod name="AkilesSDK" git="https://github.com/akiles/akiles-ios.git" tag="v2.0.0" />
       </pods>
     </podspec>
     <!-- iOS Permissions -->
