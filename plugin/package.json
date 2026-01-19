@@ -1,6 +1,6 @@
 {
   "name": "akiles-cordova",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Akiles Cordova Plugin",
   "cordova": {
     "id": "akiles-cordova",
