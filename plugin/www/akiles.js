@@ -223,6 +223,23 @@ module.exports = {
             cordova.exec(resolve, reject, 'AKILES', 'is_secure_nfc_supported', []);
         });
     },
+    captureDiagnostics: function (sessionID, options, callback) {
+        const opId = generateOpId();
+        const scanDuration = (options && options.scanDuration !== undefined) ? options.scanDuration : 30;
+        const required = (options && options.required) ? options.required : null;
+        cordova.exec(
+            function (result) {
+                callback.onSuccess && callback.onSuccess(result.diagnosticID);
+            },
+            function (err) {
+                callback.onError && callback.onError(toAkilesError(err));
+            },
+            'AKILES',
+            'capture_diagnostics',
+            [opId, sessionID, scanDuration, required]
+        );
+        return cancelFunc(opId);
+    },
     /* IOS ONLY */
     startCardEmulation: function (language) {
         return new Promise((resolve, reject) => {

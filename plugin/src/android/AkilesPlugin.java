@@ -113,6 +113,20 @@ public class AkilesPlugin extends CordovaPlugin {
                 String hardwareID = args.getString(2);
                 sync(opId, callbackContext, sessionID, hardwareID);
                 return true;
+            case "capture_diagnostics":
+                opId = args.getString(0);
+                sessionID = args.getString(1);
+                int scanDuration = args.getInt(2);
+                String[] required = null;
+                if (!args.isNull(3)) {
+                    JSONArray requiredArr = args.getJSONArray(3);
+                    required = new String[requiredArr.length()];
+                    for (int i = 0; i < requiredArr.length(); i++) {
+                        required[i] = requiredArr.getString(i);
+                    }
+                }
+                captureDiagnostics(opId, callbackContext, sessionID, scanDuration, required);
+                return true;
             case "scan_card":
                 opId = args.getString(0);
                 scanCard(opId, callbackContext);
@@ -589,6 +603,31 @@ public class AkilesPlugin extends CordovaPlugin {
                     LOG.e(TAG, "JSONException", e);
                     callbackContext.error(ex.getMessage());
                 }
+            }
+        });
+        cancelTokens.put(opId, cancel);
+    }
+
+    private void captureDiagnostics(String opId, CallbackContext callbackContext, String sessionID, int scanDuration, String[] required) {
+        Cancel cancel = ak.captureDiagnostics(sessionID, scanDuration, required, new app.akiles.sdk.Callback<String>() {
+            @Override
+            public void onSuccess(String diagnosticID) {
+                cancelTokens.remove(opId);
+                try {
+                    JSONObject result = new JSONObject();
+                    result.put("diagnosticID", diagnosticID);
+                    callbackContext.success(result);
+                } catch (JSONException e) {
+                    LOG.e(TAG, "JSONException", e);
+                    callbackContext.error(e.getMessage());
+                }
+            }
+
+            @Override
+            public void onError(AkilesException e) {
+                cancelTokens.remove(opId);
+                LOG.e(TAG, "Error capturing diagnostics", e);
+                callbackContext.error(akilesExceptionToJson(e));
             }
         });
         cancelTokens.put(opId, cancel);

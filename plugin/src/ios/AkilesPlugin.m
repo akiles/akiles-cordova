@@ -376,6 +376,45 @@
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
+#pragma mark - Diagnostics
+
+- (void)capture_diagnostics:(CDVInvokedUrlCommand*)command {
+    if (command.arguments.count < 4) {
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid parameters"];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        return;
+    }
+
+    NSString *opId = [command.arguments objectAtIndex:0];
+    NSString *sessionID = [command.arguments objectAtIndex:1];
+    int32_t scanDuration = [[command.arguments objectAtIndex:2] intValue];
+    NSArray *requiredArg = [command.arguments objectAtIndex:3];
+    NSArray<NSString *> *required = nil;
+    if (requiredArg && [requiredArg isKindOfClass:[NSArray class]]) {
+        required = requiredArg;
+    }
+
+    if (!opId || !sessionID) {
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid parameters"];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        return;
+    }
+
+    id<Cancellable> cancellable = [self.akilesSDK captureDiagnostics:sessionID scanDuration:scanDuration required:required completion:^(NSString * _Nullable diagnosticID, NSError * _Nullable error) {
+        [self.cancelTokens removeObjectForKey:opId];
+
+        CDVPluginResult* result;
+        if (error) {
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:[self errorToDict:error]];
+        } else {
+            NSDictionary *dict = @{@"diagnosticID": diagnosticID ?: @""};
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dict];
+        }
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    }];
+    [self.cancelTokens setObject:cancellable forKey:opId];
+}
+
 #pragma mark - Cancel
 
 - (void)cancel:(CDVInvokedUrlCommand*)command {

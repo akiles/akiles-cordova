@@ -22,6 +22,7 @@
 - (void)scan_card:(CDVInvokedUrlCommand*)command;
 - (void)update_card:(CDVInvokedUrlCommand*)command;
 - (void)close_card:(CDVInvokedUrlCommand*)command;
+- (void)capture_diagnostics:(CDVInvokedUrlCommand*)command;
 - (void)cancel:(CDVInvokedUrlCommand*)command;
 - (void)is_bluetooth_supported:(CDVInvokedUrlCommand*)command;
 - (void)is_card_emulation_supported:(CDVInvokedUrlCommand*)command;

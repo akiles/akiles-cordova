@@ -68,6 +68,14 @@
         </div>
         <div class="message">{{ scanStatus }}</div>
 
+        <h3>Diagnostics</h3>
+        <div class="input-row">
+            <button @click="captureDiagnosticsClicked" :disabled="!selectedSession || cancelDiagnostics">Capture Diagnostics</button>
+            <div v-if="cancelDiagnostics" class="spinner"></div>
+            <button v-if="cancelDiagnostics" @click="cancelDiagnosticsClicked">Cancel</button>
+        </div>
+        <div class="message">{{ diagnosticsStatus }}</div>
+
         <h3>Card</h3>
         Card Emulation is <b>{{ cardEmulationSupported ? 'Supported' : 'Not Supported' }}</b> on this device.
         <div class="input-row">
@@ -122,6 +130,8 @@
             const cancelScanCard = ref(null);
             const cancelSync = ref(null);
             const cancelAction = ref(null);
+            const cancelDiagnostics = ref(null);
+            const diagnosticsStatus = ref('');
             const bluetoothSupported = ref(false);
             const cardEmulationSupported = ref(false);
             const sdkVersion = ref('Loading...');
@@ -367,6 +377,32 @@
                 });
             };
 
+            const captureDiagnosticsClicked = () => {
+                if (!selectedSession.value) return;
+                diagnosticsStatus.value = 'Capturing diagnostics...';
+                cancelDiagnostics.value = akiles.captureDiagnostics(
+                    selectedSession.value,
+                    {},
+                    {
+                        onSuccess(diagnosticID) {
+                            diagnosticsStatus.value = 'Diagnostics captured: ' + diagnosticID;
+                            cancelDiagnostics.value = null;
+                        },
+                        onError(e) {
+                            diagnosticsStatus.value = 'Diagnostics error: ' + describeError(e);
+                            cancelDiagnostics.value = null;
+                        }
+                    }
+                );
+            };
+
+            const cancelDiagnosticsClicked = () => {
+                if (cancelDiagnostics.value) {
+                    cancelDiagnostics.value();
+                    cancelDiagnostics.value = null;
+                }
+            };
+
             const cancelScanCardClicked = () => {
                 if (cancelScanCard.value) {
                     cancelScanCard.value();
@@ -426,6 +462,10 @@
                 cancelSyncClicked,
                 cancelAction,
                 cancelActionClicked,
+                captureDiagnosticsClicked,
+                cancelDiagnostics,
+                cancelDiagnosticsClicked,
+                diagnosticsStatus,
                 bluetoothSupported,
                 cardEmulationSupported,
                 sdkVersion,

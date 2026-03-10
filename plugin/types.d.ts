@@ -440,6 +440,35 @@ export interface SyncCallback {
 }
 
 /**
+ * Options for the `captureDiagnostics` method.
+ */
+export interface CaptureDiagnosticsOptions {
+    /**
+     * BLE scan duration in seconds. 0 = skip scan entirely.
+     *
+     * Default: `30`.
+     */
+    scanDuration?: number;
+
+    /**
+     * Optional list of hardware IDs. Stop scanning early when all are found.
+     * Pass null/undefined to scan for the full duration.
+     */
+    required?: string[];
+}
+
+/**
+ * Callback used by the `captureDiagnostics` method.
+ */
+export interface CaptureDiagnosticsCallback {
+    /** Called when diagnostics are captured successfully, with the diagnostic ID. */
+    onSuccess(diagnosticID: string): void;
+
+    /** Called when the operation fails. */
+    onError(e: AkilesError): void;
+}
+
+/**
  * Callback used by the `scanCard` method.
  */
 export interface ScanCardCallback {
@@ -637,6 +666,20 @@ export interface Akiles {
         sessionID: string,
         hardwareID: string,
         callback: SyncCallback
+    ): () => void;
+
+    /**
+     * Capture diagnostics of local hardware and SDK.
+     *
+     * @param sessionID - ID for the session to use.
+     * @param options - Options for the diagnostics capture (scanDuration, required hardware IDs).
+     * @param callback - The callback that will be called on success (with the diagnostic ID) or error.
+     * @returns A function that cancels the ongoing captureDiagnostics operation.
+     */
+    captureDiagnostics(
+        sessionID: string,
+        options: CaptureDiagnosticsOptions | undefined | null,
+        callback: CaptureDiagnosticsCallback
     ): () => void;
 
     /**
