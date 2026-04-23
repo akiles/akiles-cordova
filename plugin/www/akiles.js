@@ -242,9 +242,7 @@ module.exports = {
     },
     /* IOS ONLY */
     startCardEmulation: function (language) {
-        return new Promise((resolve, reject) => {
-            cordova.exec(resolve, reject, 'AKILES', 'start_card_emulation', [language]);
-        });
+        return execPromise('start_card_emulation', [language]);
     },
     AkilesError,
 };

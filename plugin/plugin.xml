@@ -31,7 +31,7 @@
     <source-file src="src/ios/AkilesPlugin.m" target-dir="AkilesPlugin"/>
     <podspec>
       <pods use-frameworks="true">
-        <pod name="AkilesSDK" git="https://github.com/akiles/akiles-ios.git" tag="v2.3.2" />
+        <pod name="AkilesSDK" git="https://github.com/akiles/akiles-ios.git" tag="v2.3.4" />
       </pods>
     </podspec>
     <!-- iOS Permissions -->
