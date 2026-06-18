@@ -615,6 +615,8 @@
             return @"ACQUIRING_LOCATION";
         case ActionInternetStatusWaitingForLocationInRadius:
             return @"WAITING_FOR_LOCATION_IN_RADIUS";
+        case ActionInternetStatusConnecting:
+            return @"CONNECTING";
         default:
             return @"UNKNOWN";
     }

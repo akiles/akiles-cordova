@@ -352,6 +352,9 @@ export enum ActionInternetStatus {
 
     /** The phone is waiting for the location to be within the allowed radius. */
     WAITING_FOR_LOCATION_IN_RADIUS = 'WAITING_FOR_LOCATION_IN_RADIUS',
+
+    /** Establishing the connection to the server (DNS, TCP and TLS handshake). */
+    CONNECTING = 'CONNECTING',
 }
 
 /**
