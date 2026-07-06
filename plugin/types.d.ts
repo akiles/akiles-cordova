@@ -29,6 +29,13 @@ export enum ErrorCode {
     PERMISSION_DENIED = 'PERMISSION_DENIED',
 
     /**
+     * The member would be allowed to do this action, but the organization administrator has not
+     * granted this device (session) access. The user should ask the administrator to grant this
+     * device in the sessions tab.
+     */
+    SESSION_NOT_GRANTED = 'SESSION_NOT_GRANTED',
+
+    /**
      * All communication methods (Internet, Bluetooth) have failed.
      *
      * Check the errors reported in `onInternetError` and `onBluetoothError` for information
