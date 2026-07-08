@@ -1,0 +1,12 @@
+{
+  "ios": {
+    "debug": {
+      "developmentTeam": "68RDNL7457",
+      "automaticProvisioning": true
+    },
+    "release": {
+      "developmentTeam": "68RDNL7457",
+      "automaticProvisioning": true
+    }
+  }
+}
